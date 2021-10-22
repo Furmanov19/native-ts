@@ -14,11 +14,10 @@ import {Provider} from 'react-redux';
 import {store} from '@root/redux/store';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {firebase} from '@root/firebase/config';
 
 import {useDispatch} from 'react-redux';
-import {selectTodos} from '@root/redux/todos/selectors';
 import {addTodo, getTodoRequest} from '@root/redux/todos/slice';
+import {getUserRequest} from '@root/redux/user/slice';
 import {useSelector} from '@root/redux/store';
 
 const styles = StyleSheet.create({
@@ -64,27 +63,7 @@ const App = () => {
 
   useEffect(() => {
     dispatch(getTodoRequest());
-  }, []);
-
-  useEffect(() => {
-    // const usersRef = firebase.firestore().collection('users');
-    // firebase.auth().onAuthStateChanged((user) => {
-    //   if (user) {
-    //     usersRef
-    //       .doc(user.uid)
-    //       .get()
-    //       .then((document) => {
-    //         const userData = document.data();
-    //         console.log({userData});
-    //       })
-    //       .catch((error) => {
-    //         console.log({error});
-    //       });
-    //   } else {
-    //     console.log('else');
-    //     // setLoading(false);
-    //   }
-    // });
+    dispatch(getUserRequest());
   }, []);
 
   const handleAddTodo = (e: any) => {

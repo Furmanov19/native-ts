@@ -1,6 +1,10 @@
-import {call, put} from 'redux-saga/effects';
+import {call, put, takeLatest} from 'redux-saga/effects';
 import {PayloadAction} from '@reduxjs/toolkit';
-import {getTodoSuccess, getTodoFailure} from '@root/redux/todos/slice';
+import {
+  getTodoRequest,
+  getTodoSuccess,
+  getTodoFailure,
+} from '@root/redux/todos/slice';
 import {requestGetTodos} from './requests';
 
 export function* handleGetTodos(action: PayloadAction) {
@@ -11,4 +15,8 @@ export function* handleGetTodos(action: PayloadAction) {
   } catch (error) {
     yield put(getTodoFailure(error));
   }
+}
+
+export default function* saga() {
+  yield takeLatest(getTodoRequest.type, handleGetTodos);
 }
