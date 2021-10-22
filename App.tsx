@@ -1,14 +1,4 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * Generated with the TypeScript template
- * https://github.com/react-native-community/react-native-template-typescript
- *
- * @format
- */
-
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -17,101 +7,141 @@ import {
   Text,
   useColorScheme,
   View,
+  TextInput,
+  TouchableOpacity,
 } from 'react-native';
+import {Provider} from 'react-redux';
+import {store} from '@root/redux/store';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {firebase} from '@root/firebase/config';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import {useDispatch} from 'react-redux';
+import {selectTodos} from '@root/redux/todos/selectors';
+import {addTodo, getTodoRequest} from '@root/redux/todos/slice';
+import {useSelector} from '@root/redux/store';
 
-type SectionProps = {
-  title: string;
-};
-
-const Section: React.FC<SectionProps> = ({ children, title }) => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}
-      >
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}
-      >
-        {children}
-      </Text>
-    </View>
-  );
-};
+const styles = StyleSheet.create({
+  input: {
+    height: 48,
+    borderRadius: 5,
+    overflow: 'hidden',
+    backgroundColor: 'white',
+    marginTop: 10,
+    marginBottom: 10,
+    marginLeft: 30,
+    marginRight: 30,
+    paddingLeft: 16,
+  },
+  button: {
+    backgroundColor: '#788eec',
+    marginLeft: 30,
+    marginRight: 30,
+    marginTop: 20,
+    height: 48,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonTitle: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
+  const [todoText, setTodoText] = useState('');
+
+  const dispatch = useDispatch();
+
+  const todos = useSelector((store) => store.todos);
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
+  useEffect(() => {
+    dispatch(getTodoRequest());
+  }, []);
+
+  useEffect(() => {
+    // const usersRef = firebase.firestore().collection('users');
+    // firebase.auth().onAuthStateChanged((user) => {
+    //   if (user) {
+    //     usersRef
+    //       .doc(user.uid)
+    //       .get()
+    //       .then((document) => {
+    //         const userData = document.data();
+    //         console.log({userData});
+    //       })
+    //       .catch((error) => {
+    //         console.log({error});
+    //       });
+    //   } else {
+    //     console.log('else');
+    //     // setLoading(false);
+    //   }
+    // });
+  }, []);
+
+  const handleAddTodo = (e: any) => {
+    e.preventDefault();
+    dispatch(
+      addTodo({
+        id: Date.now().toString(),
+        completed: false,
+        title: todoText,
+      }),
+    );
+    setTodoText('');
+  };
+
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView contentInsetAdjustmentBehavior="automatic" style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}
-        >
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this screen and
-            then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">Read the docs to discover what to do next:</Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <Provider store={store}>
+      <SafeAreaView style={backgroundStyle}>
+        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+        <ScrollView
+          contentInsetAdjustmentBehavior="automatic"
+          style={backgroundStyle}>
+          <View
+            style={{
+              backgroundColor: isDarkMode ? Colors.black : Colors.white,
+            }}>
+            <KeyboardAwareScrollView
+              style={{flex: 1, width: '100%'}}
+              keyboardShouldPersistTaps="always">
+              <Text>{todos.loading ? 'loading' : null}</Text>
+              <Text> {todos.list.length ? 'laoded' : null}</Text>
+              {/*<Text>Add Todo</Text>*/}
+              {/*<TextInput*/}
+              {/*  style={styles.input}*/}
+              {/*  placeholder="Todo Text"*/}
+              {/*  placeholderTextColor="#aaaaaa"*/}
+              {/*  onChangeText={(text) => setTodoText(text)}*/}
+              {/*  value={todoText}*/}
+              {/*  underlineColorAndroid="transparent"*/}
+              {/*  autoCapitalize="none"*/}
+              {/*/>*/}
+              {/*<TouchableOpacity*/}
+              {/*  style={styles.button}*/}
+              {/*  onPress={(e) => handleAddTodo(e)}>*/}
+              {/*  <Text style={styles.buttonTitle}>Log in</Text>*/}
+              {/*</TouchableOpacity>*/}
+            </KeyboardAwareScrollView>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </Provider>
   );
 };
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+const AppWithProvider = () => (
+  <Provider store={store}>
+    <App />
+  </Provider>
+);
 
-export default App;
+export default AppWithProvider;
